@@ -1,0 +1,23 @@
+{
+  "name": "deku",
+  "version": "0.1.0",
+  "description": "deku, my web site tools",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KrisLRC/deku.git"
+  },
+  "keywords": [],
+  "author": "KrisLRC (http://github.com/KrisLRC)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KrisLRC/deku/issues"
+  },
+  "homepage": "https://github.com/KrisLRC/deku#readme",
+  "devDependencies": {
+    "eslint": "^5.0.1"
+  }
+}

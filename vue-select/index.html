@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./vue.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      color: #666;
+    }
+
+    ul, li {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .clearfix::after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+
+    .ex-wrap, .select-wrap {
+      float: left;
+      padding: 10px;
+      width: 33.3333333%;
+    }
+
+    :focus {
+      border: 1px solid #3b99fc;
+      -webkit-box-shadow: 0 0 3px 0px #3b99fc;
+      box-shadow: 0 0 3px 0px #3b99fc;
+      outline: 0;
+    }
+
+    .c-select {
+      display: inline-block;
+      font-size: 14px;
+      position: relative;
+      user-select: none;
+    }
+
+    input {
+      padding: 6px 20px 6px 12px;
+      line-height: 1.42858;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 180px;
+      display: block;
+      position: relative;
+      cursor: default;
+    }
+
+    .c-select::after {
+      content: "";
+      border: 5px solid;
+      width: 0;
+      height: 0;
+      border-color: #666 transparent transparent transparent;
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      margin-top: -3px;
+    }
+
+    [hidden] {
+      display: none;
+    }
+
+    .c-select__list {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      position: absolute;
+      width: 100%;
+      background: #FFF;
+    }
+
+    .c-select__item a {
+      padding: 10px;
+      line-height: 1;
+      display: block;
+    }
+
+    .c-select__item:hover a,
+    .c-select__item.active a {
+      color: #FFF;
+      background: skyblue;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 
+    项目描述：这个一个高仿原生select组件的vue-select组件
+    功能描述： 
+      1.使用table键可以focus
+      2.按enter键时可以展开/收起子选项菜单
+      3.按上或左键切换至上一个选项如果当前的选项是第一个则切换至最后一个选项，按下或右键同理
+   -->
+  <!-- 
+    关于如何模拟一个select：
+      1.用input标签 label是值 input里面是展示信息
+      2.用div 通过设置tabindex='0'来使div也可以获取焦点
+   -->
+  <div class="wrap clearfix">
+    <div class="ex-wrap">
+      <select>
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="mercedes">Mercedes</option>
+        <option value="audi">Audi</option>
+      </select>
+      <div>xxx</div>
+      <div>xxx</div>
+      <div>xxx</div>
+    </div>
+    <div
+      class="select-wrap"
+      id="myapp"
+      @keyup.enter="enter"
+      @keyup.down.right="nextOption"
+      @keyup.up.left="prevOption">
+      <div class="c-select">
+        <!-- <div tabindex="0" @focus="test('focus')"
+          @blur="test('blur')" class="c-select">xxx</div> -->
+        <label for="c-select" hidden>{{ view.key }}</label>
+        <input
+          id="c-select"
+          type="text"
+          @click="click"
+          @blur="blur"
+          readonly
+          :value="view.value">
+        <ul
+          class="c-select__list"
+          v-show="status.visible"
+          @mouseover="mouseover"
+          @mouseout="mouseout">
+          <!-- 
+            判断hover的条件
+
+           -->
+          <li
+            :class="['c-select__item', { active: (view === item && !status.mousein) }]"
+            v-for="(item, index) in list"
+            :key="index"
+            @mousemove="selectItem(item)">
+            <a @click="setVal(item)">{{ item.value }}</a>
+          </li>
+        </ul>
+      </div>
+      <div>xxx</div>
+      <div>xxx</div>
+      <div>xxx</div>
+    </div>
+  </div>
+
+  <script>
+    var app = new Vue({
+      el: '#myapp',
+      data() {
+        return {
+          list: [
+            {
+              key: 'apple',
+              value: '苹果'
+            },{
+              key: 'banana',
+              value: '香蕉'
+            },{
+              key: 'orange',
+              value: '桔子'
+            },{
+              key: 'grape',
+              value: '葡萄'
+            },
+          ],
+          view: {},
+          selected: {},
+          status: {
+            visible: false,
+            mousein: false,
+            selected: false
+          }
+        }
+      },
+      created () {
+        if (this.list.length === 0) {
+          this.view = {
+            key: null,
+            value: '请选择'
+          }
+        } else {
+          this.view = this.list[0]
+        }
+      },
+      methods: {
+        enter() {
+          console.log('enter')
+          this.status.visible = !this.status.visible
+        },
+        focus() {
+          console.log('focus')
+          this.status.visible = true
+        },
+        blur() {
+          console.log('blur')
+          if (!this.status.mousein) {
+            this.$options.methods.closeOptions(this)
+          }
+        },
+        click() {
+          console.log('click')
+          this.status.visible = !this.status.visible
+        },
+        setVal(val) {
+          this.view = val
+          this.$options.methods.closeOptions(this)
+        },
+        mouseover() {
+          this.status.mousein = true
+          this.status.selected = true
+        },
+        mouseout() {
+          this.status.mousein = false
+        },
+        selectItem(val) {
+          this.selected = val
+        },
+        closeOptions(app) {
+          app.status.visible = false
+          app.status.selected = false
+          app.selected = {}
+        },
+        nextOption() {
+          this.$options.methods.loopOptions(this, 'next')
+        },
+        prevOption() {
+          this.$options.methods.loopOptions(this, 'prev')
+        },
+        loopOptions(app, way) {
+          app.selected = {}
+          app.status.selected = false
+          var len = app.list.length;
+          var i = app.list.indexOf(app.view);
+          if (way === 'prev') {
+            if (i === 0) {
+              app.view = app.list[len - 1]
+            } else {
+              app.view = app.list[i - 1]
+            }
+          } else {
+            if (i === (len - 1)) {
+              app.view = app.list[0]
+            } else {
+              app.view = app.list[i + 1]
+            }
+          }
+        },
+        test(text) {
+          console.log(text)
+        }
+      }
+    })
+  </script>
+  
+</body>
+</html>

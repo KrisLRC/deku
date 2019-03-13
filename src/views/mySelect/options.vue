@@ -33,7 +33,6 @@
         display: block;
         padding: 10px;
         line-height: 1;
-        cursor: default;
       }
       &.active a {
         color: #FFF;

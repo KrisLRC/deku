@@ -1,9 +1,9 @@
 <template>
-  <div class="my-select">
+  <div class="my-select" :class="{'opened': opened}">
     <label class="my-select__wrapper">
-      <input readonly class="my-select__input" type="text" v-model="view"
-        @keyup.up.left="prev" @keyup.down.right="next" @keyup.enter="enter"
-        @click="toggle" @blur="blur">
+      <input readonly class="my-select__input" type="text" :placeholder="placeholder"
+        v-model="view" @click="toggle" @blur="blur"
+        @keyup.up.left="prev" @keyup.down.right="next" @keyup.enter="enter">
     </label>
     <dropdown :opened="opened" :options="options" :current="current"
       @mouseover.native="over" @mouseout.native="out"
@@ -26,11 +26,17 @@
       border: 5px solid;
       width: 0;
       height: 0;
-      border-color: #666 transparent transparent transparent;
+      border-color: #c0c4cc transparent transparent transparent;
       position: absolute;
       top: 50%;
       right: 10px;
       margin-top: -3px;
+      transition: all 0.3s;
+    }
+
+    &.opened::after {
+      margin-top: -9px;
+      transform: rotate(180deg);
     }
 
     &__input {
@@ -43,7 +49,16 @@
       display: block;
       box-sizing: border-box;
       position: relative;
-      cursor: default;
+      cursor: pointer;
+      transition: border-color 0.2s ease-out;
+
+      &:hover {
+        border-color: #aaa;
+      }
+
+      &::placeholder {
+        color: #c0c4cc;
+      }
 
       // 解决 使用table键获取焦点的时候，会导致input框中的文本被选中的蓝色背景。
       &::selection {
@@ -69,7 +84,7 @@ export default {
   },
   data () {
     return {
-      current: 0,
+      current: null,
       options: [
         'Apple',
         'Banana',
@@ -78,6 +93,19 @@ export default {
       opened: false,
       isInsideOfDropdown: false
     }
+  },
+  props: {
+    placeholder: {
+      type: String,
+      default: '请选择'
+    },
+    value: {
+      type: Number,
+      default: -1
+    }
+  },
+  created () {
+    this.current = this.value
   },
   computed: {
     view () {

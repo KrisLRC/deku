@@ -59,6 +59,9 @@ export default {
   watch: {
     current (val) {
       this.active = val
+    },
+    opened (val) {
+      this.active = this.current
     }
   },
   methods: {

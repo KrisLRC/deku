@@ -3,9 +3,10 @@
     <label class="my-select__wrapper">
       <input readonly class="my-select__input" type="text" v-model="view"
         @keyup.up.left="prev" @keyup.down.right="next" @keyup.enter="enter"
-        @click="toggle" @blur="toggle(false)">
+        @click="toggle" @blur="blur">
     </label>
     <dropdown :opened="opened" :options="options" :current="current"
+      @mouseover.native="over" @mouseout.native="out"
       @action="action" ref="mySelectDropdown"></dropdown>
   </div>
 </template>
@@ -74,7 +75,8 @@ export default {
         'Banana',
         'Orange'
       ],
-      opened: false
+      opened: false,
+      isInsideOfDropdown: false
     }
   },
   computed: {
@@ -106,6 +108,19 @@ export default {
       } else {
         this.toggle()
       }
+    },
+    blur () {
+      if (this.opened) {
+        if (!this.isInsideOfDropdown) {
+          this.toggle(false)
+        }
+      }
+    },
+    over () {
+      this.isInsideOfDropdown = true
+    },
+    out () {
+      this.isInsideOfDropdown = false
     }
   }
 }
